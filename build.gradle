@@ -1,7 +1,9 @@
+plugins {
+    id 'scala'
+}
+
 group 'tekumara'
 version '1.0-SNAPSHOT'
-
-apply plugin: 'scala'
 
 sourceCompatibility = 1.8
 
