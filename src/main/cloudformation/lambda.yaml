@@ -28,12 +28,12 @@ Parameters:
     Description: Lambda version
 
 Resources:
-  AlarmDeadLetterQueue:
+  AlarmLambdaDeadLetters:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmActions:
         - Ref: AlarmSnsTopic
-      AlarmDescription: Greater than [Threshold] dead letters within [Period]
+      AlarmDescription: Too many dead letters
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: QueueName
@@ -48,13 +48,14 @@ Resources:
       Period: 60
       Statistic: Sum
       Threshold: 10
+      TreatMissingData: notBreaching
 
   AlarmLambdaErrors:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmActions:
         - Ref: AlarmSnsTopic
-      AlarmDescription: Greater than [Threshold] errors within [Period]
+      AlarmDescription: Too many errors
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: FunctionName
@@ -74,7 +75,7 @@ Resources:
     Properties:
       AlarmActions:
         - Ref: AlarmSnsTopic
-      AlarmDescription: Less than [Threshold] invocations within [Period]
+      AlarmDescription: Not enough invocations
       ComparisonOperator: LessThanThreshold
       Dimensions:
         - Name: FunctionName

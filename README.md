@@ -1,6 +1,6 @@
 # aws-lambda-scala
 
-Hopefully a fairly complete production example of a simple scala lambda with cloudwatch logs and alarms, a dead letter queue, and deployment of separate stacks for prod and dev environments.
+Hopefully a fairly complete production example of a simple scala lambda with cloudwatch logs and alarms, a dead letter queue, a stack policy, and deployment of separate stacks for prod and dev environments.
 
 The philosophy is to keep the toolset small and common to what folks probably already have installed and are familiar with:
 * For building, uses gradle.
