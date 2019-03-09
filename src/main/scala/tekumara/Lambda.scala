@@ -1,11 +1,11 @@
 package tekumara
 
-import com.amazonaws.services.lambda.runtime.Context
+import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 
-class Lambda {
+class Lambda extends RequestHandler[Any, Any] {
 
-  def handler(event: Any, context: Context): String = {
-    "Hello world"
+  override def handleRequest(input: Any, context: Context): Any = {
+    input
   }
 
 }

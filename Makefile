@@ -1,7 +1,7 @@
 MAKEFLAGS += --warn-undefined-variables
 SHELL = /bin/bash -o pipefail
 .DEFAULT_GOAL := help
-.PHONY: *
+.PHONY: help debug build rm run require-environment package deploy
 
 # -----------------------------------------
 # Version
@@ -16,29 +16,29 @@ version = $(build_number).$(commit_sha)
 # -----------------------------------------
 # Config
 
-stackName = aws-lambda-scala-$(environment)
-buildBucket = $(stackName)-builds
-template = src/main/cloudformation/$(stackName).yaml
-template-packaged = build/cloudformation/packaged.yml
+region = ap-southeast-2
+name = aws-lambda-scala
+stackName = $(name)-$(environment)
+buildBucket = $(name)-builds
+template = src/main/cloudformation/lambda.yaml
+template-packaged = build/distributions/lambda.yml
+payload = {"hello":"world"}
 
 # -----------------------------------------
 # Stack params
 
 ifeq ($(environment),prod)
-  AlarmSubscriptionEndpoint = https://events.pagerduty.com/integration/1234567890/enqueue
-  AlarmSubscriptionProtocol = https
+  alarmSubscriptionEndpoint = https://events.pagerduty.com/integration/1234567890/enqueue
+  alarmSubscriptionProtocol = https
 else ifeq ($(environment),dev)
-  AlarmSubscriptionEndpoint = dev-alarms@example.com
-  AlarmSubscriptionProtocol = email
-else ifneq ($(MAKECMDGOALS),help)
- ifneq ($(MAKECMDGOALS),)
-  $(error Please provide account=prod or account=dev)
- endif
+  alarmSubscriptionEndpoint = dev-alarms@example.com
+  alarmSubscriptionProtocol = email
 endif
 
-LambdaName = $(stackName)
+lambdaName = $(stackName)
+memory = 128
 
-params = $(call expand,Environment AlarmSubscriptionEndpoint AlarmSubscriptionProtocol LambdaName)
+params = $(call expand,alarmSubscriptionEndpoint alarmSubscriptionProtocol environment lambdaName memory version)
 
 # -----------------------------------------
 # Stack tags
@@ -62,42 +62,48 @@ debug:
 	@printf "\n"
 	@printf "Stack tags:\n%s\n" "$(tags)"
 
-## Build build/distributions/app.zip
-build:
-	rm -f build/distributions/app.zip
-	make build/distributions/app.zip
+## create the S3 build bucket
+build-bucket:
+	aws s3 mb s3://$(buildBucket)
 
-build/distributions/app.zip:
+## build lambda.zip
+build: rm build/distributions/lambda.zip
+
+rm:
+	rm -f build/distributions/lambda.zip
+
+build/distributions/lambda.zip:
 	./gradlew -x test build
 
-## build
-build:
-	./gradlew build
+build/distributions/lambda: build/distributions/lambda.zip
+	unzip -o build/distributions/lambda.zip -d build/distributions/lambda/
 
 ## run locally in a container containing the lambda runtime
-run: memory = 1600
-run: /tmp/task
-	cat "hello world" | \
-		docker run --rm -v /tmp/task:/var/task							\
+run: build/distributions/lambda
+	printf "%s" '$(payload)' | \
+		docker run --rm -v $(PWD)/build/distributions/lambda:/var/task	\
 			-i -e DOCKER_LAMBDA_USE_STDIN=1       						\
 			-e AWS_DEFAULT_REGION=$(region)								\
 			-e AWS_ACCESS_KEY_ID										\
 			-e AWS_SECRET_ACCESS_KEY									\
 			-e AWS_SESSION_TOKEN										\
 			-e AWS_LAMBDA_FUNCTION_MEMORY_SIZE=$(memory)				\
-			-e STAGE=test												\
+			-e ENVIRONMENT=$(environment)								\
 			--memory=$(memory)m											\
-			lambci/lambda:java8 seek.aips.cf.Handler
+			lambci/lambda:java8 tekumara.Lambda
 
-package:
-	# upload lambda code to s3 and produce template with the s3 location
+require-environment:
+	$(if $(value environment),,$(error Please provide environment=prod or environment=dev))
+
+package: require-environment
+	# upload lambda.zip to s3 (if not already present) and produce template with the s3 location
 	aws cloudformation package 							\
             --template-file $(template) 				\
             --output-template-file $(template-packaged) \
             --s3-bucket $(buildBucket) 					\
             --s3-prefix $(stackName)
 
-## deploy
+## deploy stack
 deploy: package
 	aws cloudformation deploy 							\
 		--template-file $(template-packaged) 			\
@@ -109,6 +115,18 @@ deploy: package
 		--stack-name $(stackName)						\
 		--stack-policy-body file://src/main/cloudformation/policy.json
 
+## invoke
+invoke: require-environment
+	aws lambda invoke --invocation-type RequestResponse --function-name $(lambdaName) --region $(region) --payload '$(payload)' /dev/stdout 2> /dev/stderr
+
+## describe stack events (useful when stack updates fail)
+describe-stack-events: require-environment
+	aws cloudformation describe-stack-events --stack-name $(stackName) | jq -r '.StackEvents[] | [.ResourceStatus, .LogicalResourceId, .ResourceStatusReason] | @tsv' | column -t -s $$'\t'
+
+## delete the stack
+delete-stack: require-environment
+	aws cloudformation delete-stack --stack-name $(stackName)
+	aws cloudformation wait stack-delete-complete --stack-name $(stackName)
 
 # -----------------------------------------
 # Helpers

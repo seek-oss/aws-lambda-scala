@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: AWS Lambda Scala Example
+
+Parameters:
+  alarmSubscriptionEndpoint:
+    Type: String
+    Description: SNS subscription endpoint for cloudwatch alarms
+
+  alarmSubscriptionProtocol:
+    Type: String
+    Description: SNS subscription protocol for cloudwatch alarms
+
+  environment:
+    Type: String
+    Description: Name of the environment in which the stack is provisioned eg&#58; prod/dev
+
+  lambdaName:
+    Type: String
+    Description: Name of the Lambda function
+
+  memory:
+    Type: Number
+    Description: MemorySize of the Lamba in MB
+
+  version:
+    Type: String
+    Description: Lambda version
+
+Resources:
+  AlarmDeadLetterQueue:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - Ref: AlarmSnsTopic
+      AlarmDescription: Greater than [Threshold] dead letters within [Period]
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt
+            - LambdaDeadLetter
+            - QueueName
+      EvaluationPeriods: 1
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      OKActions:
+        - Ref: AlarmSnsTopic
+      Period: 60
+      Statistic: Sum
+      Threshold: 10
+
+  AlarmLambdaErrors:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - Ref: AlarmSnsTopic
+      AlarmDescription: Greater than [Threshold] errors within [Period]
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref lambdaName
+      EvaluationPeriods: 5
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      OKActions:
+        - Ref: AlarmSnsTopic
+      Period: 60
+      Statistic: Sum
+      Threshold: 10
+      TreatMissingData: notBreaching
+
+  AlarmLambdaInvocations:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - Ref: AlarmSnsTopic
+      AlarmDescription: Less than [Threshold] invocations within [Period]
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref lambdaName
+      EvaluationPeriods: 30
+      MetricName: Invocations
+      Namespace: AWS/Lambda
+      OKActions:
+        - Ref: AlarmSnsTopic
+      Period: 60
+      Statistic: Sum
+      Threshold: 1
+      TreatMissingData: breaching
+
+  AlarmSnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${lambdaName} alarms
+      Subscription:
+        - Endpoint: !Ref alarmSubscriptionEndpoint
+          Protocol: !Ref alarmSubscriptionProtocol
+
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: AWS Lambda Scala Example
+      Code: ../../../build/distributions/lambda.zip
+      DeadLetterConfig:
+        TargetArn: !GetAtt LambdaDeadLetter.Arn
+      Environment:
+        Variables:
+          environment: !Ref environment
+          version: !Ref version
+      FunctionName: !Ref lambdaName
+      Handler: tekumara.Lambda
+      MemorySize: !Ref memory
+      ReservedConcurrentExecutions: 10
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: java8
+      Timeout: 10
+
+  LambdaDeadLetter:
+    Type: AWS::SQS::Queue
+    Properties:
+      # retain for 14 days
+      MessageRetentionPeriod: 1209600
+      QueueName: !Sub ${lambdaName}-dead-letter
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaIAMPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LambdaLogGroup}:*
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource: !GetAtt LambdaDeadLetter.Arn
+
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${lambdaName}
+      RetentionInDays: 30
