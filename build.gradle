@@ -15,7 +15,22 @@ repositories {
 dependencies {
     compile "org.scala-lang:scala-library:${scalaVersion}"
     compile "org.scalatest:scalatest_${scalaBuildVersion}:3.0.5"
+    compile "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.0"
+    
+    compile "com.amazonaws:aws-lambda-java-core:1.2.0"
+    compile "com.amazonaws:aws-lambda-java-log4j2:1.1.0"
 
     // used by com.github.maiflai.scalatest
     testRuntime 'org.pegdown:pegdown:1.6.0'
+}
+
+task buildZip(type: Zip) {
+    // zip will be named after the project
+    // no version suffix, gives the built zip a stable name that can be referenced in cloudformation yaml file
+    version = ""
+    from compileScala
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
 }

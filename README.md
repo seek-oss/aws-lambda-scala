@@ -1,5 +1,11 @@
-# scala-gradle-project-template
+# aws-lambda-scala example
 
-Basic scala gradle project template. Includes
+Hopefully a production usable example of a scala lambda with logging, alarms, a dead letter queue, and deployment to multiple environments (eg: prod/dev).
 
-* com.github.maiflai.scalatest - produces a nice output that includes stack traces, and in addition can run tests in parallel, without requiring the addition of `@RunWith(classOf[JUnitRunner])` (which creates a duplicate Run option in Intellij). Also means you can run individual tests in the suite, rather then the whole suite, from Intellij.
+For building, uses gradle.
+
+For deployment, uses cloudformation and aws-cli.
+
+For running the lambda locally in the lamdba runtime, uses [lambci/docker-lambda](https://github.com/lambci/docker-lambda).
+
+To see your options, run `make`
