@@ -5,8 +5,8 @@ Hopefully a fairly complete production example of a simple scala lambda with clo
 The philosophy is to keep the toolset small and common to what folks probably already have installed and are familiar with:
 * For building, uses gradle.
 * For deployment, uses cloudformation and aws cli.
-* For orchestrating aws cli and general tooling, uses make.
-* For running the lambda locally in the lambda runtime, uses [lambci/docker-lambda](https://github.com/lambci/docker-lambda).
+* For orchestrating build/deployment/ops, uses make.
+* For running the lambda locally, uses [lambci/docker-lambda](https://github.com/lambci/docker-lambda).
 
 ## Prereqs
 
