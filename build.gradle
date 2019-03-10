@@ -14,7 +14,6 @@ repositories {
 
 dependencies {
     compile "org.scala-lang:scala-library:${scalaVersion}"
-    compile "org.scalatest:scalatest_${scalaBuildVersion}:3.0.5"
     compile "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.0"
     
     compile "com.amazonaws:aws-lambda-java-core:1.2.0"
@@ -25,6 +24,8 @@ dependencies {
     // scala-logging uses slf4j, which we route to log4j
     runtime "org.apache.logging.log4j:log4j-slf4j-impl:2.11.2"
 
+    testCompile "org.scalatest:scalatest_${scalaBuildVersion}:3.0.5"
+    
     // used by com.github.maiflai.scalatest
     testRuntime 'org.pegdown:pegdown:1.6.0'
 }
