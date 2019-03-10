@@ -22,7 +22,7 @@ stackName = $(name)-$(environment)
 buildBucket = $(name)-builds
 template = src/main/cloudformation/lambda.yaml
 template-packaged = build/distributions/lambda.yml
-test-payload = {"hello":"world"}
+payload = {"hello":"world"}
 
 # -----------------------------------------
 # Stack params
@@ -81,7 +81,7 @@ build/distributions/lambda: build/distributions/lambda.zip
 
 ## run locally in a container containing the lambda runtime
 run: build/distributions/lambda
-	printf "%s" '$(test-payload)' | \
+	printf "%s" '$(payload)' | \
 		docker run --rm -v $(PWD)/build/distributions/lambda:/var/task	\
 			-i -e DOCKER_LAMBDA_USE_STDIN=1       						\
 			-e AWS_DEFAULT_REGION=$(region)								\
@@ -117,7 +117,11 @@ deploy: require-environment
 
 ## invoke
 invoke: require-environment
-	aws lambda invoke --invocation-type RequestResponse --function-name $(lambdaName) --region $(region) --payload '$(test-payload)' /dev/stdout 2> /dev/stderr
+	aws lambda invoke --invocation-type RequestResponse --function-name $(lambdaName) --region $(region) --payload '$(payload)' --log-type Tail build/distributions/invoke.resp.payload > build/distributions/invoke.resp
+	@jq -r 'del(.LogResult)' build/distributions/invoke.resp
+	@jq -r '.LogResult | @base64d' build/distributions/invoke.resp
+	@cat build/distributions/invoke.resp.payload
+
 
 ## describe stack events (useful when stack updates fail)
 stack-events: require-environment
