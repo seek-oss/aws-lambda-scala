@@ -36,7 +36,7 @@ else ifeq ($(environment),dev)
 endif
 
 lambdaName = $(stackName)
-memory = 128
+memory = 256
 
 params = $(call expand,alarmSubscriptionEndpoint alarmSubscriptionProtocol environment lambdaName memory version)
 
