@@ -32,11 +32,11 @@ make deploy
 ```
 or can supplied on the command line, eg:`make deploy environment=dev` 
 
-`make deploy` deploy lambda.zip with the dev stack  
-`make deploy` deploy lambda.zip with the prod stack  
+`make deploy` deploy lambda.zip
 `make stack-events` describe stack events (useful when stack updates fail)  
-`make invoke` invoke the deployed lambda
+`make invoke` invoke the deployed lambda (RequestResponse invocation type)
 `make invoke payload='"bye byte"'` invoke the deployed lambda with an alternate payload  
+`make deploy invoke` deploy then invoke the lambda
 `make delete-stack` delete the dev stack  
 `make logs` show last 5 mins of logs  
 `make logs mins=10` show last 10 mins of logs  

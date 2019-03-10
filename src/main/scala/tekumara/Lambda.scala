@@ -4,8 +4,7 @@ import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.util.control.NonFatal
-
-class CaughtException(message: String) extends RuntimeException(message)
+import CaughtException._
 
 class Lambda extends RequestHandler[Any, Any] with StrictLogging {
 
@@ -24,7 +23,7 @@ class Lambda extends RequestHandler[Any, Any] with StrictLogging {
       case NonFatal(e) =>
         // if we just let the exception be thrown it will be logged without any context
         // we explicitly log it so we have full context, eg: AWSRequestId etc.
-        logger.error(e.getLocalizedMessage, e)
+        logger.error(e.getLocalizedMessage, filterStackTrace(e))
 
         // throw new error without stack trace so it's not repeated in the logs
         // the error message returned here will be available in the logs and
