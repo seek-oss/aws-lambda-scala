@@ -22,6 +22,8 @@ Parameters:
   memory:
     Type: Number
     Description: MemorySize of the Lamba in MB
+    MinValue: 128
+    MaxValue: 3008
 
   version:
     Type: String

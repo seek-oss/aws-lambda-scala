@@ -88,7 +88,8 @@ run: build/distributions/lambda
 			-e AWS_SECRET_ACCESS_KEY									\
 			-e AWS_SESSION_TOKEN										\
 			-e AWS_LAMBDA_FUNCTION_MEMORY_SIZE=$(memory)				\
-			-e ENVIRONMENT=$(environment)								\
+			-e environment=$(environment)								\
+			-e version=$(version)										\
 			--memory=$(memory)m											\
 			lambci/lambda:java8 tekumara.Lambda
 
@@ -120,13 +121,20 @@ invoke: require-environment
 	aws lambda invoke --invocation-type RequestResponse --function-name $(lambdaName) --region $(region) --payload '$(payload)' /dev/stdout 2> /dev/stderr
 
 ## describe stack events (useful when stack updates fail)
-describe-stack-events: require-environment
+stack-events: require-environment
 	aws cloudformation describe-stack-events --stack-name $(stackName) | jq -r '.StackEvents[] | [.ResourceStatus, .LogicalResourceId, .ResourceStatusReason] | @tsv' | column -t -s $$'\t'
 
 ## delete the stack
 delete-stack: require-environment
 	aws cloudformation delete-stack --stack-name $(stackName)
 	aws cloudformation wait stack-delete-complete --stack-name $(stackName)
+
+## logs [mins=number] [filter=string]
+logs: mins ?= 5
+logs: nowmillis = $(shell echo $$((($$(date +%s)-(60*$(mins)))*1000)))
+logs: filter ?= ""
+logs: require-environment
+	aws logs filter-log-events --log-group-name /aws/lambda/$(lambdaName) --interleaved --start-time $(nowmillis) --filter-pattern $(filter) | jq -r '.events[] | [(.timestamp / 1000 | todate), (.message | gsub("\\s+$$";""))] | join("\t")'
 
 # -----------------------------------------
 # Helpers
