@@ -10,7 +10,11 @@ class Lambda extends RequestHandler[Any, Any] with StrictLogging {
   override def handleRequest(input: Any, context: Context): Any = {
     logger.info(s"Received ${input.getClass}: ${input.toString}")
 
-    input
+    input match {
+      case "exit" => System.exit(1)
+      case x: String => x
+      case _ => throw new RuntimeException(s"Unexpected input ${input.getClass}: ${input.toString}")
+    }
   }
 
 }
