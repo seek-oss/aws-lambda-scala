@@ -1,8 +1,6 @@
 package tekumara
 
-class CaughtException(message: String) extends RuntimeException(message)
-
-object CaughtException {
+object Exceptions {
 
   // remove aws lambda runtime stack lines from the stack trace
   def filterStackTrace[T <: Throwable](t: T): T = {
