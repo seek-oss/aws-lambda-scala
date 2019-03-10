@@ -97,16 +97,14 @@ run: build/distributions/lambda
 require-environment:
 	$(if $(value environment),,$(error Please provide environment=prod or environment=dev))
 
-package: require-environment
+## deploy stack
+deploy: require-environment
 	# upload lambda.zip to s3 (if not already present) and produce template with the s3 location
 	aws cloudformation package 							\
             --template-file $(template) 				\
             --output-template-file $(template-packaged) \
             --s3-bucket $(buildBucket) 					\
             --s3-prefix $(stackName)
-
-## deploy stack
-deploy: package
 	aws cloudformation deploy 							\
 		--template-file $(template-packaged) 			\
 		--stack-name $(stackName)						\

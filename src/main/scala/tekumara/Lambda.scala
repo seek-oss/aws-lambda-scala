@@ -8,7 +8,8 @@ class Lambda extends RequestHandler[Any, Any] with StrictLogging {
   logger.info("Lambda initialised")
 
   override def handleRequest(input: Any, context: Context): Any = {
-    logger.info(s"Received $input")
+    logger.info(s"Received ${input.getClass}: ${input.toString}")
+
     input
   }
 
