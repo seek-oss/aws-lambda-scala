@@ -22,7 +22,7 @@ stackName = $(name)-$(environment)
 buildBucket = $(name)-builds
 template = src/main/cloudformation/lambda.yaml
 template-packaged = build/distributions/lambda.yml
-payload = {"hello":"world"}
+test-payload = {"hello":"world"}
 
 # -----------------------------------------
 # Stack params
@@ -76,11 +76,12 @@ build/distributions/lambda.zip:
 	./gradlew -x test build
 
 build/distributions/lambda: build/distributions/lambda.zip
+	rm -rf build/distributions/lambda/
 	unzip -o build/distributions/lambda.zip -d build/distributions/lambda/
 
 ## run locally in a container containing the lambda runtime
 run: build/distributions/lambda
-	printf "%s" '$(payload)' | \
+	printf "%s" '$(test-payload)' | \
 		docker run --rm -v $(PWD)/build/distributions/lambda:/var/task	\
 			-i -e DOCKER_LAMBDA_USE_STDIN=1       						\
 			-e AWS_DEFAULT_REGION=$(region)								\
@@ -118,7 +119,7 @@ deploy: package
 
 ## invoke
 invoke: require-environment
-	aws lambda invoke --invocation-type RequestResponse --function-name $(lambdaName) --region $(region) --payload '$(payload)' /dev/stdout 2> /dev/stderr
+	aws lambda invoke --invocation-type RequestResponse --function-name $(lambdaName) --region $(region) --payload '$(test-payload)' /dev/stdout 2> /dev/stderr
 
 ## describe stack events (useful when stack updates fail)
 stack-events: require-environment

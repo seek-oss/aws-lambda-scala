@@ -22,7 +22,8 @@ Check the config section of the Makefile is configured for your region, and `bui
 
 `make build` build lambda.zip  
 `make run` run lambda.zip locally inside the lambda runtime   
-`make build-bucket` creates the S3 build bucket  
+`make build run` build and run the lambda locally
+`make build-bucket` creates the S3 build bucket
 
 The following commands all require the variable `environment`, which exported from the shell first, eg:
 ```
