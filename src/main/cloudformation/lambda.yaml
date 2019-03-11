@@ -104,7 +104,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: AWS Lambda Scala Example
-      Code: ../../../build/distributions/lambda.zip
+      Code: ../../../build/distributions/lambda.jar
       DeadLetterConfig:
         TargetArn: !GetAtt LambdaDeadLetter.Arn
       Environment:

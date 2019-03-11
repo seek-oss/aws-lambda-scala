@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        // provides proguard.gradle.ProGuardTask (including all requirements)
+        classpath 'net.sf.proguard:proguard-gradle:6.0.3'
+    }
+}
+
 plugins {
     id 'scala'
     id 'com.github.maiflai.scalatest' version '0.23'
@@ -18,9 +29,9 @@ dependencies {
 
     compile "org.scala-lang:scala-library:${scalaVersion}"
     compile "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.0"
-    
+
     compile "com.amazonaws:aws-lambda-java-core:1.2.0"
-    
+
     // provides LambdaAppender which adds AWSRequestId to the MDC
     compile "com.amazonaws:aws-lambda-java-log4j2:1.1.0"
 
@@ -28,9 +39,27 @@ dependencies {
     runtime "org.apache.logging.log4j:log4j-slf4j-impl:2.11.2"
 
     testCompile "org.scalatest:scalatest_${scalaBuildVersion}:3.0.5"
-    
+
     // used by com.github.maiflai.scalatest
     testRuntime 'org.pegdown:pegdown:1.6.0'
+}
+
+/*
+   At least on Mac OS X, the local run task start seems to be proportional to the number of files in the bundle.
+   The proguard bundles takes an additional 3 secs to start over the zip. This also happens with non-proguard uber jars.
+   More testing would need to be done to determine if this affects lambda cold start times in AWS.
+ */
+task bundle(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
+    configuration 'proguard.conf'
+
+    // include our app
+    injars jar.archivePath
+    
+    // include the app's runtime deps
+    // we need to make sure we keep META-INF/services/* for apps like log4j that uses j.u.ServiceLoader to find implementations
+    injars configurations.runtime.files, filter: '!META-INF/versions/**, !META-INF/*, !META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat'
+    
+    outjars "${buildDir}/libs/lambda.jar"
 }
 
 task buildZip(type: Zip) {
@@ -45,4 +74,4 @@ task buildZip(type: Zip) {
     }
 }
 
-build.dependsOn buildZip
+build.dependsOn bundle
