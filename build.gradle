@@ -44,14 +44,12 @@ dependencies {
     testRuntime 'org.pegdown:pegdown:1.6.0'
 }
 
-/*
-   At least on Mac OS X, the local run task start seems to be proportional to the number of files in the bundle.
-   The proguard bundles takes an additional 3 secs to start over the zip. This also happens with non-proguard uber jars.
-   More testing would need to be done to determine if this affects lambda cold start times in AWS.
- */
-task bundle(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
+// bundle just the libs together, rather than making an uber jar, in an attempt to improve
+// local run startup times
+task bundleLibs(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
     configuration 'proguard.conf'
 
+    // TODO - can we completely remove our app here
     // include our app
     injars jar.archivePath
     
@@ -59,19 +57,20 @@ task bundle(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
     // we need to make sure we keep META-INF/services/* for apps like log4j that uses j.u.ServiceLoader to find implementations
     injars configurations.runtime.files, filter: '!META-INF/versions/**, !META-INF/*, !META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat'
     
-    outjars "${buildDir}/libs/lambda.jar"
+    outjars "${buildDir}/libs/libs.jar"
 }
 
-task buildZip(type: Zip) {
+task buildZip(type: Zip, dependsOn: bundleLibs) {
     // set the base name of the zip file
     baseName = "lambda"
     // no version suffix, gives the built zip a stable name that can be referenced in cloudformation yaml file
     version = ""
     from compileScala
     from processResources
+    // the AWS runtime expects to find jars in the lib/ dir
     into('lib') {
-        from configurations.runtime
+        from "${buildDir}/libs/libs.jar"
     }
 }
 
-build.dependsOn bundle
+build.dependsOn buildZip

@@ -23,7 +23,7 @@ buildBucket = $(name)-builds
 template = src/main/cloudformation/lambda.yaml
 template-packaged = build/distributions/lambda.yml
 payload = {"hello":"world"}
-bundle = build/libs/lambda.jar
+bundle = build/distributions/lambda.zip
 
 # -----------------------------------------
 # Stack params
