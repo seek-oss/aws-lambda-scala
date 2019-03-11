@@ -105,7 +105,7 @@ deploy: require-environment
             --template-file $(template) 				\
             --output-template-file $(template-packaged) \
             --s3-bucket $(buildBucket) 					\
-            --s3-prefix $(stackName)
+            --s3-prefix $(name)
 	aws cloudformation deploy 							\
 		--template-file $(template-packaged) 			\
 		--stack-name $(stackName)						\

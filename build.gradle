@@ -40,6 +40,7 @@ task buildZip(type: Zip) {
     version = ""
     from compileScala
     from processResources
+    // the lambda runtime expects to find jars in the lib/ dir
     into('lib') {
         from configurations.runtime
     }
