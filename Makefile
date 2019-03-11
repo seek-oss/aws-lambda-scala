@@ -23,6 +23,7 @@ buildBucket = $(name)-builds
 template = src/main/cloudformation/lambda.yaml
 template-packaged = build/distributions/lambda.yml
 payload = {"hello":"world"}
+bundle = build/distributions/lambda.zip
 
 # -----------------------------------------
 # Stack params
@@ -66,18 +67,18 @@ debug:
 build-bucket:
 	aws s3 mb s3://$(buildBucket)
 
-## build lambda.zip
-build: rm build/distributions/lambda.zip
+## build bundle
+build: rm $(bundle)
 
 rm:
-	rm -f build/distributions/lambda.zip
+	rm -f $(bundle)
 
-build/distributions/lambda.zip:
+$(bundle):
 	./gradlew -x test build
 
-build/distributions/lambda: build/distributions/lambda.zip
+build/distributions/lambda: $(bundle)
 	rm -rf build/distributions/lambda/
-	unzip -o build/distributions/lambda.zip -d build/distributions/lambda/
+	unzip -q -o $(bundle) -d build/distributions/lambda/
 
 ## run locally in a container containing the lambda runtime
 run: build/distributions/lambda
