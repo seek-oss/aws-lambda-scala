@@ -104,7 +104,8 @@ require-environment:
 
 ## deploy stack
 deploy: require-environment
-	# upload lambda.zip to s3 (if not already present) and produce template with the s3 location
+	# upload lambda.zip to s3 named using its md5sum, so we only upload if this version
+	# doesn't already exist. This produces a template using the uploaded s3 location
 	aws cloudformation package 							\
             --template-file $(template) 				\
             --output-template-file $(template-packaged) \

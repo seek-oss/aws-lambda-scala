@@ -35,6 +35,15 @@ dependencies {
     testRuntime 'org.pegdown:pegdown:1.6.0'
 }
 
+// create a reproducible archive, so we only need to upload the zip when its source changes
+// https://docs.gradle.org/3.4/userguide/working_with_files.html#sec:reproducible_archives
+tasks.withType(AbstractArchiveTask) {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+// build a zip the way lambda wants it 
+// see https://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
 task buildZip(type: Zip) {
     // set the base name of the zip file
     baseName = "lambda"
