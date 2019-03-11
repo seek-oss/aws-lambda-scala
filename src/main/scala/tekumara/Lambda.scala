@@ -1,23 +1,30 @@
 package tekumara
 
-import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
+import java.io.{InputStream, OutputStream, OutputStreamWriter}
+
+import com.amazonaws.services.lambda.runtime.{Context, RequestStreamHandler}
 import com.typesafe.scalalogging.StrictLogging
+import tekumara.Exceptions._
+import tekumara.Util._
 
 import scala.util.control.NonFatal
-import Exceptions._
+import scala.util.{Success, Try}
 
-class Lambda extends RequestHandler[Any, Any] with StrictLogging {
+class Lambda extends RequestStreamHandler with StrictLogging {
 
   logger.info(s"Lambda initialised version ${System.getenv("version")}")
 
-  override def handleRequest(input: Any, context: Context): Any = {
+  override def handleRequest(in: InputStream, out: OutputStream, context: Context): Unit =
     try {
-      logger.info(s"Received ${input.getClass}: ${input.toString}")
+      val input: Array[Byte] = readAllBytes(in)
 
-      input match {
-        case "exit" => System.exit(1)
-        case x: String => x
-        case _ => throw new RuntimeException(s"Unexpected input ${input.getClass}: ${input.toString}")
+      Try(ujson.read(input)) match {
+        case Success(ujson.Str("exit")) => System.exit(1)
+        case Success(x@ujson.Str(_)) =>
+          val writer = new OutputStreamWriter(out)
+          ujson.writeTo(x, writer)
+          writer.flush()
+        case _ => throw new RuntimeException(s"Unexpected input ${asTruncatedString(input, 100)}")
       }
     } catch {
       case NonFatal(e) =>
@@ -31,6 +38,5 @@ class Lambda extends RequestHandler[Any, Any] with StrictLogging {
         e.setStackTrace(new Array[StackTraceElement](0))
         throw e
     }
-  }
 
 }

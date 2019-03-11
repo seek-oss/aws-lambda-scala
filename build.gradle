@@ -20,14 +20,16 @@ dependencies {
     compile "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.0"
     
     compile "com.amazonaws:aws-lambda-java-core:1.2.0"
-    
     // provides LambdaAppender which adds AWSRequestId to the MDC
     compile "com.amazonaws:aws-lambda-java-log4j2:1.1.0"
+    
+    compile "com.lihaoyi:upickle_${scalaBuildVersion}:0.7.1"
 
     // scala-logging uses slf4j, which we route to log4j
     runtime "org.apache.logging.log4j:log4j-slf4j-impl:2.11.2"
 
     testCompile "org.scalatest:scalatest_${scalaBuildVersion}:3.0.5"
+    testCompile "org.mockito:mockito-all:1.10.19"
     
     // used by com.github.maiflai.scalatest
     testRuntime 'org.pegdown:pegdown:1.6.0'

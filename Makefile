@@ -67,6 +67,10 @@ debug:
 build-bucket:
 	aws s3 mb s3://$(buildBucket)
 
+## test
+test:
+	./gradlew test
+
 ## build bundle
 build: rm $(bundle)
 
