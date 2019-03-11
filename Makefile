@@ -6,8 +6,8 @@ SHELL = /bin/bash -o pipefail
 # -----------------------------------------
 # Version
 
-commit_sha = $(shell (git diff-index --quiet HEAD -- && git rev-parse --short HEAD) || echo "uncommited")
-build_number = $(shell whoami).snapshot
+commit_sha = $(shell git rev-parse --short HEAD)$(shell git diff-index --quiet HEAD -- || echo ".uncommited")
+build_number = $(shell whoami)
 ifdef BUILDKITE_BUILD_NUMBER
 	build_number = $(BUILDKITE_BUILD_NUMBER)
 endif

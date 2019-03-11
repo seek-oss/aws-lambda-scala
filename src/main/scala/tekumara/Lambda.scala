@@ -8,7 +8,7 @@ import Exceptions._
 
 class Lambda extends RequestHandler[Any, Any] with StrictLogging {
 
-  logger.info("Lambda initialised")
+  logger.info(s"Lambda initialised version ${System.getenv("version")}")
 
   override def handleRequest(input: Any, context: Context): Any = {
     try {
