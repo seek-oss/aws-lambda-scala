@@ -16,30 +16,30 @@ The philosophy is to keep the toolset small and common to what folks probably al
 * jq
 * python + aws cli
 
-Check the config section of the Makefile is configured for your region, and `buildBucket` is unique.
+Check the config section of the Makefile is configured for your region, and `buildBucket` is unique. Then run `make build-bucket` to create the S3 build bucket.
 
 ## Commands
 
+`make` to describe all commands  
 `make build` build lambda.zip  
 `make run` run lambda.zip locally inside the lambda runtime   
-`make build run` build and run the lambda locally
-`make build-bucket` creates the S3 build bucket
+`make build run` build and run the lambda locally  
 
-The following commands all require the variable `environment`, which exported from the shell first, eg:
+### Environment specific commands
+
+The following commands all require the variable `environment`, which can be exported from the shell first, eg:
 ```
 export environment=dev
 make deploy
 ```
-or can supplied on the command line, eg:`make deploy environment=dev` 
+or alternatively, supplied on the command line, eg:`make deploy environment=dev` 
 
-`make deploy` deploy lambda.zip
+`make deploy` deploy lambda.zip  
 `make stack-events` describe stack events (useful when stack updates fail)  
-`make invoke` invoke the deployed lambda (RequestResponse invocation type)
+`make invoke` invoke the deployed lambda (RequestResponse invocation type)  
 `make invoke payload='"bye byte"'` invoke the deployed lambda with an alternate payload  
-`make deploy invoke` deploy then invoke the lambda
-`make delete-stack` delete the dev stack  
+`make deploy invoke` deploy then invoke the lambda  
+`make delete-stack` delete the stack  
 `make logs` show last 5 mins of logs  
 `make logs mins=10` show last 10 mins of logs  
 `make logs filter='START'` show logs containing `START`
-
-To describe all your options, run `make`
