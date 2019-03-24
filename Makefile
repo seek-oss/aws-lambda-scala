@@ -6,7 +6,7 @@ SHELL = /bin/bash -o pipefail
 # -----------------------------------------
 # Version
 
-commit_sha = $(shell git rev-parse --short HEAD)$(shell git diff-index --quiet HEAD -- || echo ".uncommited")
+commit_sha = $(shell git rev-parse --short HEAD)$(shell git diff --quiet || echo ".uncommitted")
 build_number = $(shell whoami)
 ifdef BUILDKITE_BUILD_NUMBER
 	build_number = $(BUILDKITE_BUILD_NUMBER)
@@ -112,12 +112,14 @@ deploy: require-environment
             --s3-bucket $(buildBucket) 					\
             --s3-prefix $(name)
 	aws cloudformation deploy 							\
+		--region $(region)								\
 		--template-file $(template-packaged) 			\
 		--stack-name $(stackName)						\
 		--capabilities CAPABILITY_IAM 					\
 		--parameter-overrides $(params) 				\
 		--tags $(tags)
 	aws cloudformation set-stack-policy					\
+		--region $(region)								\
 		--stack-name $(stackName)						\
 		--stack-policy-body file://src/main/cloudformation/policy.json
 
