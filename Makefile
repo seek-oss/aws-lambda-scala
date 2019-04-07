@@ -22,18 +22,17 @@ stackName = $(name)-$(environment)
 buildBucket = $(name)-builds
 template = src/main/cloudformation/lambda.yaml
 template-packaged = build/distributions/lambda.yml
-payload = {"hello":"world"}
+# the bundle location is also used in template, you'll need to change it there as well as here
 bundle = build/distributions/lambda.zip
 
 # -----------------------------------------
 # Stack params
 
+alarmSubscriptionEndpoint = dev-alarms@example.com
+alarmSubscriptionProtocol = email
 ifeq ($(environment),prod)
   alarmSubscriptionEndpoint = https://events.pagerduty.com/integration/1234567890/enqueue
   alarmSubscriptionProtocol = https
-else ifeq ($(environment),dev)
-  alarmSubscriptionEndpoint = dev-alarms@example.com
-  alarmSubscriptionProtocol = email
 endif
 
 lambdaName = $(stackName)
@@ -48,8 +47,8 @@ owner = tekumara@example.com
 
 tags = $(call expand,version owner)
 
-# -----------------------------------------
-# Targets
+# --------------------------------------------------------
+# Targets for test, build and deploy
 
 ## display this help message
 help:
@@ -57,11 +56,11 @@ help:
 
 ## print environment for build debugging
 debug:
-	@printf ".DEFAULT_GOAL=%s\n" "$(.DEFAULT_GOAL)"
-	@printf "\n"
 	@printf "Stack params:\n%s\n" "$(params)"
 	@printf "\n"
 	@printf "Stack tags:\n%s\n" "$(tags)"
+	@printf "\n"
+	@printf "git changes %s\n" "$(shell git diff --name-only)"
 
 ## create the S3 build bucket
 build-bucket:
@@ -80,31 +79,9 @@ rm:
 $(bundle):
 	./gradlew -x test build
 
-build/distributions/lambda: $(bundle)
-	rm -rf build/distributions/lambda/
-	unzip -q -o $(bundle) -d build/distributions/lambda/
-
-## run locally in a container containing the lambda runtime
-run: build/distributions/lambda
-	printf "%s" '$(payload)' | \
-		docker run --rm -v $(PWD)/build/distributions/lambda:/var/task	\
-			-i -e DOCKER_LAMBDA_USE_STDIN=1       						\
-			-e AWS_DEFAULT_REGION=$(region)								\
-			-e AWS_ACCESS_KEY_ID										\
-			-e AWS_SECRET_ACCESS_KEY									\
-			-e AWS_SESSION_TOKEN										\
-			-e AWS_LAMBDA_FUNCTION_MEMORY_SIZE=$(memory)				\
-			-e environment=$(environment)								\
-			-e version=$(version)										\
-			--memory=$(memory)m											\
-			lambci/lambda:java8 tekumara.Lambda
-
-require-environment:
-	$(if $(value environment),,$(error Please provide environment=prod or environment=dev))
-
 ## deploy stack
 deploy: require-environment
-	# upload lambda.zip to s3 named using its md5sum, so we only upload if this version
+	# upload bundle to s3 named using its md5sum, so we only upload if this version
 	# doesn't already exist. This produces a template using the uploaded s3 location
 	aws cloudformation package 							\
             --template-file $(template) 				\
@@ -123,6 +100,34 @@ deploy: require-environment
 		--stack-name $(stackName)						\
 		--stack-policy-body file://src/main/cloudformation/policy.json
 
+# ---------------------------------------------------------------------
+# Targets for running locally, invoking, checking stack events and logs
+
+# input used to invoke the lambda below
+payload = {"hello":"world"}
+
+## run locally in a container containing the lambda runtime
+run: build/distributions/lambda
+	printf "%s" '$(payload)' | \
+		docker run --rm -v $(PWD)/build/distributions/lambda:/var/task	\
+			-i -e DOCKER_LAMBDA_USE_STDIN=1       						\
+			-e AWS_DEFAULT_REGION=$(region)								\
+			-e AWS_ACCESS_KEY_ID										\
+			-e AWS_SECRET_ACCESS_KEY									\
+			-e AWS_SESSION_TOKEN										\
+			-e AWS_LAMBDA_FUNCTION_MEMORY_SIZE=$(memory)				\
+			-e environment=$(environment)								\
+			-e version=$(version)										\
+			--memory=$(memory)m											\
+			lambci/lambda:java8 tekumara.Lambda
+
+build/distributions/lambda: $(bundle)
+	rm -rf build/distributions/lambda/
+	unzip -q -o $(bundle) -d build/distributions/lambda/
+
+require-environment:
+	$(if $(value environment),,$(error Please provide environment=prod or environment=dev))
+
 ## invoke
 invoke: require-environment
 	aws lambda invoke --invocation-type RequestResponse --function-name $(lambdaName) --region $(region) --payload '$(payload)' --log-type Tail build/distributions/invoke.resp.payload > build/distributions/invoke.resp
@@ -130,6 +135,8 @@ invoke: require-environment
 	@jq -r '.LogResult | @base64d' build/distributions/invoke.resp
 	@cat build/distributions/invoke.resp.payload
 
+# ---------------------------------------------------------------------
+# Ops
 
 ## describe stack events (useful when stack updates fail)
 stack-events: require-environment
