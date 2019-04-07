@@ -48,7 +48,7 @@ Resources:
       OKActions:
         - Ref: AlarmSnsTopic
       Period: 60
-      Statistic: Max
+      Statistic: Maximum
       Threshold: 10
       TreatMissingData: notBreaching
 
