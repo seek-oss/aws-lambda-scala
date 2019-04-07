@@ -1,10 +1,11 @@
+package tekumara
+
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, OutputStream, PrintStream}
 import java.nio.charset.StandardCharsets
 
 import com.amazonaws.services.lambda.runtime.Context
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FunSuite, Matchers}
-import tekumara.RequestUjsonHandler
 import ujson.{ParseException, Value}
 
 class RequestUjsonHandlerTest extends FunSuite with MockitoSugar with Matchers {
