@@ -71,13 +71,13 @@ test:
 	./gradlew test
 
 ## build bundle
-build: rm $(bundle)
+build: $(bundle)
 
-rm:
-	rm -f $(bundle)
-
-$(bundle):
+$(bundle): build.gradle $(shell find src)
 	./gradlew -x test build
+	# touch just in the case gradle had decided there was to do nothing
+	# eg: when changes have occured to the cloudformation yaml but no scala files
+	touch $(bundle)
 
 ## deploy stack
 deploy: require-environment
