@@ -75,14 +75,14 @@ build: $(bundle)
 
 $(bundle): build.gradle $(shell find src)
 	./gradlew -x test build
-	# touch just in the case gradle had decided there was to do nothing
-	# eg: when changes have occured to the cloudformation yaml but no scala files
+# touch just in the case gradle had decided there was to do nothing
+# eg: when changes have occured to the cloudformation yaml but no scala files
 	touch $(bundle)
 
 ## deploy stack
 deploy: require-environment
-	# upload bundle to s3 named using its md5sum, so we only upload if this version
-	# doesn't already exist. This produces a template using the uploaded s3 location
+# upload bundle to s3 named using its md5sum, so we only upload if this version
+# doesn't already exist. This produces a template using the uploaded s3 location
 	aws cloudformation package 							\
             --template-file $(template) 				\
             --output-template-file $(template-packaged) \
