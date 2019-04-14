@@ -1,6 +1,6 @@
 package tekumara
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, OutputStream, PrintStream}
+import java.io._
 import java.nio.charset.StandardCharsets
 
 import com.amazonaws.services.lambda.runtime.Context
@@ -11,7 +11,7 @@ import ujson.{ParseException, Value}
 class RequestUjsonHandlerTest extends FunSuite with MockitoSugar with Matchers {
 
   val lambda = new RequestUjsonHandler {
-    override def handleRequest(json: Value, context: Context): Option[Value] = Some(json)
+    override def handleRequest(json: Value, writer: OutputStreamWriter, context: Context) = ujson.writeTo(json, writer)
   }
 
   def asInputStream(s: String) = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8))
@@ -23,12 +23,12 @@ class RequestUjsonHandlerTest extends FunSuite with MockitoSugar with Matchers {
     val input = "\"hello ujson\""
     lambda.handleRequest(asInputStream(input), out, mock[Context])
 
-    baos.toString should be (input)
+    baos.toString should be(input)
   }
 
   test("invalid json input throws exception") {
     val input = "hello world"
-    an [ParseException] should be thrownBy lambda.handleRequest(asInputStream(input), mock[OutputStream], mock[Context])
+    an[ParseException] should be thrownBy lambda.handleRequest(asInputStream(input), mock[OutputStream], mock[Context])
   }
 
 }

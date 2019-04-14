@@ -10,18 +10,14 @@ import scala.util.control.NonFatal
 
 trait RequestUjsonHandler extends RequestStreamHandler with StrictLogging {
 
-  def handleRequest(json: ujson.Value, context: Context): Option[ujson.Value]
+  def handleRequest(json: ujson.Value, writer: OutputStreamWriter, context: Context): Unit
 
-  override def handleRequest(in: InputStream, out: OutputStream, context: Context): Unit =
+  override def handleRequest(in: InputStream, out: OutputStream, context: Context): Unit = {
     try {
-
-      val input: Array[Byte] = readAllBytes(in)
-      handleRequest(ujson.read(input), context).foreach { result =>
-        val writer = new OutputStreamWriter(out)
-        ujson.writeTo(result, writer)
-        writer.flush()
-      }
-
+      val json = ujson.read(readAllBytes(in))
+      val writer = new OutputStreamWriter(out)
+      handleRequest(json, writer, context)
+      writer.flush()
     } catch {
       case NonFatal(e) =>
         // if we just let the exception be thrown it will be logged without any context
@@ -34,6 +30,7 @@ trait RequestUjsonHandler extends RequestStreamHandler with StrictLogging {
         e.setStackTrace(new Array[StackTraceElement](0))
         throw e
     }
+  }
 
   def readAllBytes(in: InputStream): Array[Byte] = {
     val baos = new ByteArrayOutputStream()
