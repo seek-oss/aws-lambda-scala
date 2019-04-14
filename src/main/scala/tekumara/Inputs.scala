@@ -21,4 +21,17 @@ trait Inputs {
     }
   }
 
+  object SnsRecords {
+    // extract array of Records if the first one is an SNS message
+    def unapply(v: Value): Option[mutable.ArrayBuffer[Value]] = {
+      v match {
+        case obj: Obj if obj.value.contains("Records") &&
+          obj("Records").isInstanceOf[ujson.Arr] &&
+          obj("Records")(0).obj.value.contains("Sns") =>
+          Some(obj("Records").arr)
+        case _ => None
+      }
+    }
+  }
+
 }

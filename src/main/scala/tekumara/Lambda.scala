@@ -18,15 +18,25 @@ class Lambda extends RequestUjsonHandler with StrictLogging {
       case ujson.Str("exit") =>
         logger.info("exit")
         System.exit(1)
+
       case ujson.Str(s) =>
         logger.info(s)
         writer.write(s)
+
+      case SnsRecords(records) =>
+        val record = records(0).obj
+        logger.info(s"input=${json.render()}")
+        val message = record("Sns")("Message")
+        logger.info(s"Message=${message.render()}")
+        ujson.writeTo(message, writer)
+
       case SqsRecords(records) =>
         val record = records(0).obj
         logger.info(s"input=${json.render()}")
         val body = record("body")
         logger.info(s"body=${body.render()}")
         ujson.writeTo(body, writer)
+
       case _ => throw new RuntimeException(s"Unexpected input ${json.render()}")
     }
   }

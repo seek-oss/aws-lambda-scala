@@ -1,0 +1,22 @@
+{
+  "Records": [
+    {
+      "EventSource": "aws:sns",
+      "EventVersion": "1.0",
+      "EventSubscriptionArn": "arn:aws:sns:ap-southeast-2:012345678901:tekumara-test:7677c0a4-44b1-43e8-add4-371a5cdcdd17",
+      "Sns": {
+        "Type": "Notification",
+        "MessageId": "856ad0cd-c55a-596f-9508-85e0e5ffe873",
+        "TopicArn": "arn:aws:sns:ap-southeast-2:012345678901:tekumara-test",
+        "Subject": null,
+        "Message": "via sns",
+        "Timestamp": "2019-04-14T11:49:57.677Z",
+        "SignatureVersion": "1",
+        "Signature": "VxF82jEif/E1K/FTkmzwzzGZMh+8pYdh7/GKHLQ0MLXZqf0I4yw32EiAilTGtdALhT7YIISVdNjzqn2/en1/+7Z+0HC1jTOU77lJNVMyb4ACvO/ZlewgfJQUWANR+hsfx2y8GBQKqxoqDBq/AmZDYwfCsmG7GlF1oL3ZcRQgYf27ork4n+VWoYqRJvvEVSvayxi06zEe4Kmf3Mjfw9FuDeoYuo35bmccAxslTHeBzWGo1bP9rZHubi612BhFZoQjnRNsv1r4j21gbMXCR/JxKoavTUAzdx1bZk2rPVQV+oEZrQTXDPck7lREX3W8pMdxbH6xp57Kfqwn8WHqNFaTvg==",
+        "SigningCertUrl": "https://sns.ap-southeast-2.amazonaws.com/SimpleNotificationService-6aad65c2f9911b05cd53efda11f913f9.pem",
+        "UnsubscribeUrl": "https://sns.ap-southeast-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:ap-southeast-2:012345678901:tekumara-test:7677c0a4-44b1-43e8-add4-371a5cdcdd17",
+        "MessageAttributes": {}
+      }
+    }
+  ]
+}

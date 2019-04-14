@@ -13,7 +13,17 @@ class LambdaTest extends FunSuite with MockitoSugar with Matchers {
 
   def asInputStream(s: String) = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8))
 
-  val sqsPayload = ClassLoader.getSystemResourceAsStream("inputs-sqs.json")
+  val sqsPayload = ClassLoader.getSystemResourceAsStream("inputs/sqs.json")
+  val snsPayload = ClassLoader.getSystemResourceAsStream("inputs/sns.json")
+
+  test("deserialise sns") {
+    val baos = new ByteArrayOutputStream
+    val out = new PrintStream(baos, true)
+
+    lambda.handleRequest(snsPayload, out, mock[Context])
+
+    baos.toString should be(""""via sns"""")
+  }
 
   test("deserialise sqs") {
     val baos = new ByteArrayOutputStream

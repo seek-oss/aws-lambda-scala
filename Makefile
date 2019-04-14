@@ -129,8 +129,9 @@ require-environment:
 	$(if $(value environment),,$(error Please provide environment=prod or environment=dev))
 
 ## invoke
+invoke: type = RequestResponse
 invoke: require-environment
-	aws lambda invoke --invocation-type RequestResponse --function-name $(lambdaName) --region $(region) --payload '$(payload)' --log-type Tail build/distributions/invoke.resp.payload > build/distributions/invoke.resp
+	aws lambda invoke --invocation-type $(type) --function-name $(lambdaName) --region $(region) --payload '$(payload)' --log-type Tail build/distributions/invoke.resp.payload > build/distributions/invoke.resp
 	@jq -r 'del(.LogResult)' build/distributions/invoke.resp
 	@jq -r '.LogResult | @base64d' build/distributions/invoke.resp
 	@cat build/distributions/invoke.resp.payload
