@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "89c3d8a0-6826-446c-9e58-5c526e7229dc",
+      "receiptHandle": "AQEB3dSo1PIrnYpoEJbC2i8zPqddeb0ATPmWkvZZk+dyxSquCdo2SyKHl4NHE6sCKuS4xzyR2I1kS8HqsQs3zkAKe7jtpQ5NjU5OZFHIQWAqHVKoRboc6EMOqsLSwhW3GyNiXWMtvJNxPus/THCYksAoER1D2NxvLehwp6qQGc3zE3u9ZYWZzy39fnj49aIuxh+U82fJ32c2VXI3T0wRWCb3UpJ6KSRkwyojRxpSVmIUp5bXkHiFIrYlD/284YjtDbhAGAcHnde/uN+NUgK/oLzUcUoBhonPSlO2ubwNShJCXdIUG4ExlUjBiE95ZhFtN6q1eCPEUqlRqTk9+kzfyoZIFnz7rN4aDWuYch+uDh7F/O7N4+6xW5zGVNCGpwjU5jm0XiLvzOAd4WaF4e7Q/KCibg==",
+      "body": "\"json-body\"",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1555231687292",
+        "SenderId": "AROAJRLFCHGQTKPDIBP2C:125105+tekumara@users.noreply.github.com",
+        "ApproximateFirstReceiveTimestamp": "1555231687298"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "96664b122669b3b3758091235faffd09",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:ap-southeast-2:012345678901:tekumara-test",
+      "awsRegion": "ap-southeast-2"
+    }
+  ]
+}
