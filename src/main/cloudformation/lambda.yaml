@@ -47,10 +47,12 @@ Resources:
       Namespace: AWS/SQS
       OKActions:
         - Ref: AlarmSnsTopic
-      Period: 60
+      # SQS queues publish metrics every 5 mins
+      Period: 300
       Statistic: Maximum
       Threshold: 10
-      TreatMissingData: notBreaching
+      # when metrics are delayed, keep the alarm in the current state (avoids flapping)
+      TreatMissingData: ignore
 
   AlarmLambdaErrors:
     Type: AWS::CloudWatch::Alarm
