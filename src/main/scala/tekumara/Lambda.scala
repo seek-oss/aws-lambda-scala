@@ -30,6 +30,10 @@ class Lambda extends RequestUjsonHandler with StrictLogging {
         logger.info(s"Message=${message.render()}")
         ujson.writeTo(message, writer)
 
+        if (message.str.contains("exit")) {
+          System.exit(1)
+        }
+
       case SqsRecords(records) =>
         val record = records(0).obj
         logger.info(s"input=${json.render()}")
