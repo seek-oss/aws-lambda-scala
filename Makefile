@@ -37,15 +37,9 @@ endif
 
 lambdaName = $(stackName)
 memory = 256
-
-params = $(call expand,alarmSubscriptionEndpoint alarmSubscriptionProtocol environment lambdaName memory version)
-
-# -----------------------------------------
-# Stack tags
-
 owner = tekumara@example.com
 
-tags = $(call expand,version owner)
+params = $(call expand,alarmSubscriptionEndpoint alarmSubscriptionProtocol environment lambdaName memory version owner)
 
 # --------------------------------------------------------
 # Targets for test, build and deploy
@@ -57,8 +51,6 @@ help:
 ## print environment for build debugging
 debug:
 	@printf "Stack params:\n%s\n" "$(params)"
-	@printf "\n"
-	@printf "Stack tags:\n%s\n" "$(tags)"
 	@printf "\n"
 	@printf "git changes %s\n" "$(shell git diff --name-only)"
 
@@ -93,8 +85,7 @@ deploy: require-environment
 		--template-file $(template-packaged) 			\
 		--stack-name $(stackName)						\
 		--capabilities CAPABILITY_IAM 					\
-		--parameter-overrides $(params) 				\
-		--tags $(tags)
+		--parameter-overrides $(params)
 	aws cloudformation set-stack-policy					\
 		--region $(region)								\
 		--stack-name $(stackName)						\

@@ -25,9 +25,14 @@ Parameters:
     MinValue: 128
     MaxValue: 3008
 
+  owner:
+    Type: String
+    Description: Owner tag
+
   version:
     Type: String
-    Description: Lambda version
+    Description: Lambda version tag
+
 
 Resources:
   AlarmLambdaDeadLetters:
@@ -120,6 +125,11 @@ Resources:
       Role: !GetAtt LambdaRole.Arn
       Runtime: java8
       Timeout: 10
+      Tags:
+        - Key: owner
+          Value: !Ref owner
+        - Key: version
+          Value: !Ref version
 
   LambdaDeadLetter:
     Type: AWS::SQS::Queue
