@@ -139,12 +139,16 @@ delete-stack: require-environment
 	aws cloudformation delete-stack --stack-name $(stackName)
 	aws cloudformation wait stack-delete-complete --stack-name $(stackName)
 
-## logs [mins=number] [filter=string]
+## logs [mins=number] [filter=string] [stream=name]
 logs: mins ?= 5
 logs: nowmillis = $(shell echo $$((($$(date +%s)-(60*$(mins)))*1000)))
 logs: filter ?= ""
 logs: require-environment
+ifneq ($(stream),)
+	aws logs filter-log-events --log-group-name /aws/lambda/$(lambdaName) --log-stream-names '$(value stream)' --interleaved --start-time 0 --filter-pattern "" | jq -r '.events[] | [(.timestamp / 1000 | todate), (.message | gsub("\\s+$$";""))] | join("\t")'
+else
 	aws logs filter-log-events --log-group-name /aws/lambda/$(lambdaName) --interleaved --start-time $(nowmillis) --filter-pattern $(filter) | jq -r '.events[] | [(.timestamp / 1000 | todate), (.message | gsub("\\s+$$";""))] | join("\t")'
+endif
 
 # -----------------------------------------
 # Helpers
