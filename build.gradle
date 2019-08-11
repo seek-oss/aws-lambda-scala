@@ -26,7 +26,7 @@ dependencies {
     compile "com.lihaoyi:upickle_${scalaBuildVersion}:0.7.1"
 
     // scala-logging uses slf4j, which we route to log4j
-    runtime "org.apache.logging.log4j:log4j-slf4j-impl:2.12.0"
+    runtime "org.apache.logging.log4j:log4j-slf4j-impl:2.12.1"
 
     testCompile "org.scalatest:scalatest_${scalaBuildVersion}:3.0.5"
     testCompile "org.mockito:mockito-all:1.10.19"
