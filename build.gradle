@@ -23,7 +23,7 @@ dependencies {
     // provides LambdaAppender which adds AWSRequestId to the MDC
     compile "com.amazonaws:aws-lambda-java-log4j2:1.1.0"
     
-    compile "com.lihaoyi:upickle_${scalaBuildVersion}:0.7.1"
+    compile "com.lihaoyi:upickle_${scalaBuildVersion}:0.7.4"
 
     // scala-logging uses slf4j, which we route to log4j
     runtime "org.apache.logging.log4j:log4j-slf4j-impl:2.13.1"
