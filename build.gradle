@@ -21,7 +21,7 @@ dependencies {
     
     implementation "com.amazonaws:aws-lambda-java-core:1.2.1"
     // provides LambdaAppender which adds AWSRequestId to the MDC
-    implementation "com.amazonaws:aws-lambda-java-log4j2:1.1.1"
+    implementation "com.amazonaws:aws-lambda-java-log4j2:1.2.0"
     
     implementation "com.lihaoyi:upickle_${scalaBuildVersion}:0.7.4"
 
