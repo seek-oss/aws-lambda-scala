@@ -1,6 +1,6 @@
 plugins {
     id 'scala'
-    id 'com.github.maiflai.scalatest' version '0.30'
+    id 'com.github.maiflai.scalatest' version '0.31'
 }
 
 group 'tekumara'
@@ -18,19 +18,19 @@ dependencies {
 
     implementation "org.scala-lang:scala-library:${scalaVersion}"
     implementation "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.4"
-    
+
     implementation "com.amazonaws:aws-lambda-java-core:1.2.1"
     // provides LambdaAppender which adds AWSRequestId to the MDC
     implementation "com.amazonaws:aws-lambda-java-log4j2:1.2.0"
-    
+
     implementation "com.lihaoyi:upickle_${scalaBuildVersion}:1.4.0"
 
     // scala-logging uses slf4j, which we route to log4j
-    runtime "org.apache.logging.log4j:log4j-slf4j-impl:2.14.1"
+    runtimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:2.14.1"
 
     testImplementation "org.scalatest:scalatest_${scalaBuildVersion}:3.0.5"
     testImplementation "org.mockito:mockito-all:1.10.19"
-    
+
     // used by com.github.maiflai.scalatest
     testRuntimeOnly 'org.pegdown:pegdown:1.6.0'
 }
@@ -42,7 +42,7 @@ tasks.withType(AbstractArchiveTask) {
     reproducibleFileOrder = true
 }
 
-// build a zip the way lambda wants it 
+// build a zip the way lambda wants it
 // see https://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html
 task buildZip(type: Zip) {
     // set the base name of the zip file
@@ -53,7 +53,7 @@ task buildZip(type: Zip) {
     from processResources
     // the lambda runtime expects to find jars in the lib/ dir
     into('lib') {
-        from configurations.runtime
+        from configurations.runtimeClasspath
     }
 }
 
