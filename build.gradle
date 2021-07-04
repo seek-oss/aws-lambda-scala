@@ -13,8 +13,8 @@ repositories {
 }
 
 dependencies {
-    def scalaBuildVersion = '2.11'
-    def scalaVersion = '2.11.12'
+    def scalaBuildVersion = '2.12'
+    def scalaVersion = '2.12.14'
 
     implementation "org.scala-lang:scala-library:${scalaVersion}"
     implementation "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.4"
@@ -49,6 +49,7 @@ task buildZip(type: Zip) {
     baseName = "lambda"
     // no version suffix, gives the built zip a stable name that can be referenced in cloudformation yaml file
     version = ""
+
     from compileScala
     from processResources
     // the lambda runtime expects to find jars in the lib/ dir

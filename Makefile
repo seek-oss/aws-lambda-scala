@@ -67,7 +67,7 @@ build: $(bundle)
 
 $(bundle): build.gradle $(shell find src)
 	./gradlew -x test build
-# touch just in the case gradle had decided there was to do nothing
+# touch just in the case gradle had decided there was nothing to do
 # eg: when changes have occured to the cloudformation yaml but no scala files
 	touch $(bundle)
 
