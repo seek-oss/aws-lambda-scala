@@ -28,7 +28,7 @@ dependencies {
     // scala-logging uses slf4j, which we route to log4j
     runtimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
 
-    testImplementation "org.scalatest:scalatest_${scalaBuildVersion}:3.0.5"
+    testImplementation "org.scalatest:scalatest_${scalaBuildVersion}:3.3.0-SNAP3"
     testImplementation "org.mockito:mockito-all:1.10.19"
 
     // used by com.github.maiflai.scalatest
