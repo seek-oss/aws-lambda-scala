@@ -17,7 +17,7 @@ dependencies {
     def scalaVersion = '2.12.14'
 
     implementation "org.scala-lang:scala-library:${scalaVersion}"
-    implementation "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.4"
+    implementation "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.5"
 
     implementation "com.amazonaws:aws-lambda-java-core:1.2.1"
     // provides LambdaAppender which adds AWSRequestId to the MDC
