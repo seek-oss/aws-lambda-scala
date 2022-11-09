@@ -19,7 +19,7 @@ dependencies {
     implementation "org.scala-lang:scala-library:${scalaVersion}"
     implementation "com.typesafe.scala-logging:scala-logging_${scalaBuildVersion}:3.9.5"
 
-    implementation "com.amazonaws:aws-lambda-java-core:1.2.1"
+    implementation "com.amazonaws:aws-lambda-java-core:1.2.2"
     // provides LambdaAppender which adds AWSRequestId to the MDC
     implementation "com.amazonaws:aws-lambda-java-log4j2:1.5.1"
 
